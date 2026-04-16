@@ -1,0 +1,15 @@
+.DS_Store
+__pycache__/
+*.pyc
+
+# Generated outputs
+output/
+
+# pair_balance: keep source code only
+pair_balance/__pycache__/
+pair_balance/_build/
+pair_balance/data/
+pair_balance/output/
+pair_balance/*.pdf
+pair_balance/*.txt
+
