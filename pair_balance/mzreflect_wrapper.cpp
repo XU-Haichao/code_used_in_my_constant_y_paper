@@ -93,3 +93,60 @@ extern "C" int mz_reflect_spectrum(
         return 2;
     }
 }
+
+extern "C" int mz_ireflect_spectrum(
+    int n,
+    const double* x_in,
+    const double* spinc_in,
+    double cos_incl,
+    double abund,
+    double fe_abund,
+    double disk_temperature_k,
+    double ionization_parameter,
+    double x_max,
+    double* spref_out
+) {
+    try {
+        initialize_xspec_runtime();
+
+        if (n <= 0 || !x_in || !spinc_in || !spref_out ||
+            disk_temperature_k <= 0.0 || ionization_parameter < 0.0) {
+            return 1;
+        }
+
+        RealArray x(static_cast<std::size_t>(n));
+        RealArray spinc(static_cast<std::size_t>(n));
+        RealArray sptot(static_cast<std::size_t>(n));
+
+        for (int i = 0; i < n; ++i) {
+            x[static_cast<std::size_t>(i)] = x_in[i];
+            spinc[static_cast<std::size_t>(i)] = spinc_in[i];
+        }
+
+        calcCompReflTotalFlux(
+            std::string("ireflect"),
+            -1.0,
+            cos_incl,
+            abund,
+            fe_abund,
+            ionization_parameter,
+            disk_temperature_k,
+            x_max,
+            x,
+            spinc,
+            sptot
+        );
+
+        for (int i = 0; i < n; ++i) {
+            spref_out[static_cast<std::size_t>(i)] = sptot[static_cast<std::size_t>(i)];
+        }
+
+        return 0;
+    } catch (const std::exception& exc) {
+        std::cerr << "mz_ireflect_spectrum exception: " << exc.what() << std::endl;
+        return 2;
+    } catch (...) {
+        std::cerr << "mz_ireflect_spectrum exception: unknown" << std::endl;
+        return 2;
+    }
+}

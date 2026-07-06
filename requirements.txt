@@ -1,0 +1,8 @@
+numpy
+pandas
+matplotlib
+scipy
+mpmath
+jupyter
+nbconvert
+pytest

@@ -1,0 +1,7 @@
+intrinsic_log_scatter,parameter,q16,median,q84,n_clean_compTT,method
+0.0,f_corona,0.9843535445908574,0.9921020402972729,0.9977258152453468,14,deterministic_posterior_grid_with_log_sigma
+0.0,g_feedback,0.010318058488625317,0.026050196569328683,0.04175379491548862,14,deterministic_posterior_grid_with_log_sigma
+0.1,f_corona,0.974154601959422,0.9883106246958252,0.9967091441816248,14,deterministic_posterior_grid_with_log_sigma
+0.1,g_feedback,0.014560362622405754,0.03778232902114076,0.06925839274793912,14,deterministic_posterior_grid_with_log_sigma
+0.5,f_corona,0.9257798722199434,0.9646882702145231,0.9905200477649418,14,deterministic_posterior_grid_with_log_sigma
+0.5,g_feedback,0.03965415768065293,0.10984748516984111,0.19204747227942195,14,deterministic_posterior_grid_with_log_sigma

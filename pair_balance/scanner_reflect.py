@@ -78,6 +78,15 @@ class ReflectionConfig(ScanConfig):
     compare_output_csv: pathlib.Path = COMPARE_CSV
 
 
+@dataclass(frozen=True)
+class IonizedReflectionConfig:
+    disk_temperature_k: float
+    ionization_parameter: float
+    reflector_abundance: float = 1.0
+    reflector_iron_abundance: float = 1.0
+    hemisphere_mu_order: int = 12
+
+
 def _candidate_heasoft_roots() -> list[pathlib.Path]:
     candidates: list[pathlib.Path] = []
     env_headas = os.environ.get("HEADAS")
@@ -88,7 +97,12 @@ def _candidate_heasoft_roots() -> list[pathlib.Path]:
     if env_conda:
         candidates.append(pathlib.Path(env_conda) / "heasoft")
 
-    candidates.append(pathlib.Path("/Users/epiphyllum/anaconda3/envs/henv/heasoft"))
+    candidates.extend(
+        [
+            pathlib.Path("/Users/epiphyllum/anaconda3/envs/heasoft_full/heasoft"),
+            pathlib.Path("/Users/epiphyllum/anaconda3/envs/henv/heasoft"),
+        ]
+    )
 
     unique: list[pathlib.Path] = []
     seen: set[str] = set()
@@ -114,7 +128,15 @@ def build_reflect_bridge() -> pathlib.Path:
     output = BUILD_DIR / BRIDGE_NAME
 
     if output.exists() and output.stat().st_mtime >= WRAPPER_SRC.stat().st_mtime:
-        return output
+        linked_libraries = subprocess.run(
+            ["otool", "-L", str(output)],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+        expected_library = str(heasoft_root / "lib" / "libXSFunctions.dylib")
+        if expected_library in linked_libraries:
+            return output
 
     conda_lib = heasoft_root.parent / "lib"
     cmd = [
@@ -199,6 +221,45 @@ class NeutralReflectionKernel:
 
         hemisphere_flux = float(np.sum((x_grid * x_weights) * hemisphere_spectrum))
         return observer_spectrum, hemisphere_spectrum, observer_flux, hemisphere_flux
+
+
+class IonizedReflectionKernel(NeutralReflectionKernel):
+    def __init__(self, config: IonizedReflectionConfig):
+        super().__init__(config)
+        self.config = config
+        self._bridge.mz_ireflect_spectrum.argtypes = [
+            ctypes.c_int,
+            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),
+            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),
+            ctypes.c_double,
+            ctypes.c_double,
+            ctypes.c_double,
+            ctypes.c_double,
+            ctypes.c_double,
+            ctypes.c_double,
+            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),
+        ]
+        self._bridge.mz_ireflect_spectrum.restype = ctypes.c_int
+
+    def reflection_only(self, x_grid: np.ndarray, incident_spectrum: np.ndarray, mu_obs: float) -> np.ndarray:
+        x = np.ascontiguousarray(np.asarray(x_grid, dtype=np.float64))
+        spinc = np.ascontiguousarray(np.asarray(incident_spectrum, dtype=np.float64))
+        spref = np.zeros_like(spinc)
+        status = self._bridge.mz_ireflect_spectrum(
+            int(x.size),
+            x,
+            spinc,
+            float(mu_obs),
+            float(self.config.reflector_abundance),
+            float(self.config.reflector_iron_abundance),
+            float(self.config.disk_temperature_k),
+            float(self.config.ionization_parameter),
+            float(x[-1]),
+            spref,
+        )
+        if status != 0:
+            raise RuntimeError(f"HEASoft ireflect bridge failed with status={status}.")
+        return spref
 
 
 class ReflectionCoupledSlabSolver(ComppsSlabSolver):

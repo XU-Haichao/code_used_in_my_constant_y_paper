@@ -1,0 +1,2 @@
+initpackage comppsc lmodel_comppsc.dat .
+rm comppscFunctionMap.*  lpack_comppsc.* Makefile compps.o

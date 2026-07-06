@@ -1,0 +1,5 @@
+sample,x_quantity,y_quantity,n,spearman_rho,p_value
+cleaned compTT,kTe_keV,lambda_Edd,14,-0.14553481833373808,0.6195918257433033
+cleaned compTT,y_bessel,lambda_Edd,14,0.3594268998242318,0.20688767415545395
+full compTT,kTe_keV,lambda_Edd,20,-0.02711864599137093,0.9096424773888585
+full compTT,y_bessel,lambda_Edd,20,-0.15587353816817348,0.5116746438080233
