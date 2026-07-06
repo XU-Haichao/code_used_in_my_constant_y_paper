@@ -23,6 +23,33 @@ source and compiled manuscript PDF are intentionally not included.
 - `compps_conv/`: local convolution-version compPSc source code, validation
   scripts, and validation outputs.
 
+## compPSc attribution
+
+The `compps_conv/` implementation is based on the convolution-version compPSc
+model described by Zdziarski et al. (2024). If you use this model code or the
+derived compPSc grids, please cite:
+
+```bibtex
+@ARTICLE{2024ApJ...962..101Z,
+       author = {{Zdziarski}, Andrzej A. and {Banerjee}, Srimanta and {Chand}, Swadesh and {Dewangan}, Gulab and {Misra}, Ranjeev and {Szanecki}, Micha{\l} and {Nied{\'z}wiecki}, Andrzej},
+        title = "{Black Hole Spin Measurements in LMC X-1 and Cyg X-1 Are Highly Model Dependent}",
+      journal = {\apj},
+     keywords = {X-ray binary stars, X-ray sources, Accretion, Be stars, Astrophysical black holes, Rotating black holes, 1811, 1822, 14, 142, 98, 1406, Astrophysics - High Energy Astrophysical Phenomena},
+         year = 2024,
+        month = feb,
+       volume = {962},
+       number = {2},
+          eid = {101},
+        pages = {101},
+          doi = {10.3847/1538-4357/ad1b60},
+archivePrefix = {arXiv},
+       eprint = {2308.06167},
+ primaryClass = {astro-ph.HE},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/2024ApJ...962..101Z},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}
+```
+
 ## Python dependencies
 
 The plotting notebook needs the standard scientific Python stack listed in
