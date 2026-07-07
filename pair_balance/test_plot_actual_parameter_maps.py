@@ -348,15 +348,14 @@ def test_notebook_removed_temporary_likelihood_normalization_comparison_cell() -
 
 def test_notebook_contains_comptt_spearman_correlation_cell() -> None:
     notebook = json.loads((ROOT / "main.ipynb").read_text())
-    matching_cells = [
-        cell
-        for cell in notebook["cells"]
+    matching_indices = [
+        idx
+        for idx, cell in enumerate(notebook["cells"])
         if cell.get("metadata", {}).get("codex_added") == "compTT_spearman_correlations"
     ]
 
-    assert len(matching_cells) == 1
-    assert matching_cells[0] is notebook["cells"][-1]
-    source = "".join(matching_cells[0]["source"])
+    assert len(matching_indices) == 1
+    source = "".join(notebook["cells"][matching_indices[0]]["source"])
     assert "compTT_comptt_sample_v2.csv" in source
     assert "Optical_Depth_tau" in source
     assert "frame[col] *= 2.0" in source
@@ -367,6 +366,31 @@ def test_notebook_contains_comptt_spearman_correlation_cell() -> None:
     assert "cleaned compTT" in source
     assert "full compTT" in source
     assert "compTT_spearman_correlations.csv" in source
+
+
+def test_notebook_contains_kte_tau_error_correlation_sensitivity_cell() -> None:
+    notebook = json.loads((ROOT / "main.ipynb").read_text())
+    matching_cells = [
+        cell
+        for cell in notebook["cells"]
+        if cell.get("metadata", {}).get("codex_added") == "fg_kte_tau_error_correlation_sensitivity"
+    ]
+
+    assert len(matching_cells) == 1
+    assert matching_cells[0] is notebook["cells"][-1]
+    source = "".join(matching_cells[0]["source"])
+    assert "rho_sensitivity_values = (0.0, -0.5, -0.9)" in source
+    assert "def gaussian_curve_objective_correlated" in source
+    assert "correlated_observation_covariance_with_log_sigma" in source
+    assert "2.0 * correlation * dR_dlog_kTe * dR_dlog_tau" in source
+    assert "sigma_R2_int = scatter**2 * (dR_dlog_kTe**2 + dR_dlog_tau**2)" in source
+    assert "np.log(sigma_R2[valid])" in source
+    assert "credible_density_thresholds" in source
+    assert "posterior_cell_weights_corr = g_widths_corr[:, None] * f_widths_corr[None, :]" in source
+    assert "fg_kte_tau_error_correlation_sensitivity.png" in source
+    assert "fg_kte_tau_error_correlation_sensitivity.pdf" in source
+    assert "fg_kte_tau_error_correlation_sensitivity_summary.csv" in source
+    assert "fg_kte_tau_error_correlation_sensitivity_density.csv" in source
 
 
 def test_restrict_tau_range_drops_rows_below_minimum() -> None:
